@@ -1,0 +1,14 @@
+[
+  {"question": "掌柜智库企业版的计费方式是什么？", "gold_chunk_ids": ["billing#c1", "billing#c2"]},
+  {"question": "免费版和企业版有什么区别？", "gold_chunk_ids": ["billing#c0", "billing#c1"]},
+  {"question": "如何接入掌柜智库的 API？需要什么鉴权方式？", "gold_chunk_ids": ["api-guide#c0", "api-guide#c1"]},
+  {"question": "API 请求频率限制是多少？超限了怎么办？", "gold_chunk_ids": ["api-guide#c4", "api-guide#c5"]},
+  {"question": "知识库支持导入哪些文档格式？", "gold_chunk_ids": ["product-manual#c0"]},
+  {"question": "混合检索是怎么工作的？", "gold_chunk_ids": ["product-manual#c3"]},
+  {"question": "如何保证回答不胡编乱造？", "gold_chunk_ids": ["product-manual#c4"]},
+  {"question": "数据安全方面有哪些保障措施？", "gold_chunk_ids": ["security#c0", "security#c1"]},
+  {"question": "忘记管理员密码怎么重置？", "gold_chunk_ids": ["faq#c1"]},
+  {"question": "系统出现检索延迟升高如何排查？", "gold_chunk_ids": ["ops-runbook#c1"]},
+  {"question": "掌柜智库是否支持私有化部署？", "gold_chunk_ids": ["product-manual#c5"]},
+  {"question": "如何配置审计日志？", "gold_chunk_ids": ["security#c2"]}
+]

@@ -1,0 +1,71 @@
+# ─── Python ───────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ─── 虚拟环境 ─────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.local
+
+# ─── 索引产物（可重建，勿提交）────────────────────────────
+# python -m app.cli ingest 约 1 秒即可从零重建全部索引
+data/indices/*.faiss
+data/indices/*.pkl
+data/indices/chunks.json
+data/indices/meta.json
+
+# ─── 密钥与本地配置 ───────────────────────────────────────
+# config.yaml 中的 neo4j password、generation api_key 需保持为空或占位值
+*.key
+*.pem
+secrets.yaml
+config.local.yaml
+.jobenv
+.jobenv.run
+
+# ─── 模型权重（体积大，勿提交）────────────────────────────
+models/
+*.bin
+*.safetensors
+*.gguf
+*.onnx
+.cache/
+
+# ─── 评测与运行输出 ───────────────────────────────────────
+eval_output*.json
+*.log
+logs/
+runs/
+
+# ─── 编辑器 / 系统 ────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

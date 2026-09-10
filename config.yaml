@@ -1,0 +1,53 @@
+# 掌柜智库 · 项目配置
+project:
+  name: "zhanggui-zhiku"
+
+ingest:
+  docs_dir: "data/docs"
+  index_dir: "data/indices"
+
+chunk:
+  chunk_size: 500        # 字符
+  chunk_overlap: 100     # 字符（约 20%）
+  min_chunk_size: 50
+
+embedding:
+  # 可选: "bge"（需 sentence-transformers + 模型权重）| "hash"（零依赖本地回退）
+  provider: "hash"
+  bge_model: "BAAI/bge-large-zh-v1.5"
+  dim: 1024              # hash 回退的哈希维度
+
+retrieval:
+  vector_top_k: 20       # 向量召回
+  bm25_top_k: 20         # 关键词召回
+  rrf_k: 60              # RRF 融合常数
+  rerank_top_k: 5        # 精排后保留数
+
+rerank:
+  # 可选: "bge"（需 FlagEmbedding + 模型权重）| "lexical"（零依赖本地回退）
+  provider: "lexical"
+
+graphrag:
+  backend: "networkx"    # 可选: "networkx" | "neo4j"
+  neo4j:
+    uri: "bolt://localhost:7687"
+    user: "neo4j"
+    password: "changeme"
+
+generation:
+  # OpenAI 兼容接口；为空时使用本地抽取式回退生成器（保证离线可跑通）
+  api_base: ""           # 例: https://api.openai.com/v1
+  api_key: ""
+  model: "gpt-4o-mini"
+  temperature: 0.1
+  max_context_chars: 3000
+
+answer:
+  # 拒答阈值需与嵌入模型匹配：hash 嵌入余弦分通常 0.1~0.3 → 取 0.15；
+  # 换 BGE 后余弦分通常 0.5~0.8 → 建议 0.35~0.45
+  refusal_threshold: 0.15   # 最高相关度低于该值 → 拒答（幻觉抑制）
+  citation_required: true   # 每条结论必须挂载 [n] 引用
+
+api:
+  host: "127.0.0.1"
+  port: 8000

@@ -1,0 +1,15 @@
+faiss-cpu>=1.7
+numpy>=1.24
+rank-bm25>=0.2.2
+jieba>=0.42.1
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pyyaml>=6.0
+networkx>=3.0
+pypdf>=4.0
+python-docx>=1.1
+
+# 可选增强（默认关闭，启用方式见 config.yaml 与 README）
+# sentence-transformers>=2.7   # BGE 向量嵌入
+# FlagEmbedding>=1.2           # BGE-Reranker
+# neo4j>=5.0                   # Neo4j 图数据库后端

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>掌柜智库 · 企业知识库问答</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #ffffff; --border: #e4e7ec;
+    --text: #1f2430; --muted: #6b7280;
+    --primary: #2f6bff; --primary-soft: #eef3ff;
+    --warn: #b45309; --warn-bg: #fff7ed;
+    --graph: #0f766e; --graph-bg: #f0fdfa;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+         background: var(--bg); color: var(--text); height: 100vh;
+         display: flex; flex-direction: column; }
+  header { background: var(--panel); border-bottom: 1px solid var(--border);
+           padding: 14px 24px; display: flex; align-items: baseline; gap: 12px; }
+  header h1 { font-size: 18px; }
+  header span { font-size: 12px; color: var(--muted); }
+  #chat { flex: 1; overflow-y: auto; padding: 24px; display: flex;
+          flex-direction: column; gap: 16px; max-width: 860px; width: 100%;
+          margin: 0 auto; }
+  .msg { max-width: 82%; border-radius: var(--radius); padding: 12px 16px;
+         line-height: 1.7; font-size: 14px; white-space: pre-wrap; }
+  .user { align-self: flex-end; background: var(--primary); color: #fff;
+          border-bottom-right-radius: 4px; }
+  .bot { align-self: flex-start; background: var(--panel);
+         border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .bot.refused { background: var(--warn-bg); border-color: #fdba74; color: var(--warn); }
+  .meta { margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .cites { margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 8px;
+           font-size: 12.5px; display: flex; flex-direction: column; gap: 6px; }
+  .cite { background: var(--primary-soft); border-radius: 8px; padding: 6px 10px; }
+  .cite b { color: var(--primary); }
+  .cite .src { color: var(--muted); }
+  .graphlines { margin-top: 8px; font-size: 12.5px; color: var(--graph);
+                background: var(--graph-bg); border-radius: 8px; padding: 6px 10px; }
+  .timings { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  #composer { background: var(--panel); border-top: 1px solid var(--border);
+              padding: 14px 24px; }
+  #composer .inner { max-width: 860px; margin: 0 auto; display: flex; gap: 10px; }
+  #q { flex: 1; border: 1px solid var(--border); border-radius: 10px;
+       padding: 11px 14px; font-size: 14px; outline: none; }
+  #q:focus { border-color: var(--primary); }
+  #send { background: var(--primary); color: #fff; border: none; border-radius: 10px;
+          padding: 0 22px; font-size: 14px; cursor: pointer; }
+  #send:disabled { opacity: .5; cursor: default; }
+  .suggests { max-width: 860px; margin: 0 auto 10px; display: flex; gap: 8px;
+              flex-wrap: wrap; }
+  .suggests button { border: 1px solid var(--border); background: var(--panel);
+                     border-radius: 999px; padding: 6px 14px; font-size: 12.5px;
+                     color: var(--muted); cursor: pointer; }
+  .suggests button:hover { border-color: var(--primary); color: var(--primary); }
+  .typing { align-self: flex-start; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>掌柜智库</h1>
+  <span>企业知识库 RAG 问答 · 回答可溯源 · 无依据自动拒答</span>
+</header>
+
+<div id="chat">
+  <div class="msg bot">你好，我是掌柜智库知识库助手。所有回答均基于知识库文档生成并附引用出处，若知识库中没有足够依据我会直接拒答。可以试试下面的示例问题。</div>
+</div>
+
+<div id="composer">
+  <div class="suggests" id="suggests"></div>
+  <div class="inner">
+    <input id="q" placeholder="输入你的问题，回车发送…" autocomplete="off">
+    <button id="send">发送</button>
+  </div>
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const q = document.getElementById('q');
+const send = document.getElementById('send');
+const suggests = ['企业版的计费方式是什么？','如何保证回答不胡编乱造？','API 请求频率限制是多少？','忘记管理员密码怎么重置？'];
+
+suggests.forEach(s => {
+  const b = document.createElement('button');
+  b.textContent = s;
+  b.onclick = () => { q.value = s; doAsk(); };
+  document.getElementById('suggests').appendChild(b);
+});
+
+function addMsg(cls, text) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + cls;
+  d.textContent = text;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+  return d;
+}
+
+async function doAsk() {
+  const query = q.value.trim();
+  if (!query) return;
+  q.value = '';
+  addMsg('user', query);
+  const typing = addMsg('typing', '检索知识库中…');
+  send.disabled = true;
+  try {
+    const r = await fetch('/api/ask', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query})
+    });
+    const data = await r.json();
+    typing.remove();
+    const div = document.createElement('div');
+    div.className = 'msg bot' + (data.refused ? ' refused' : '');
+    const p = document.createElement('div');
+    p.textContent = data.answer;
+    div.appendChild(p);
+    if (data.graph_lines && data.graph_lines.length) {
+      const g = document.createElement('div');
+      g.className = 'graphlines';
+      g.textContent = '🔗 知识图谱关联：' + data.graph_lines.join('　');
+      div.appendChild(g);
+    }
+    if (data.citations && data.citations.length) {
+      const cs = document.createElement('div');
+      cs.className = 'cites';
+      data.citations.forEach((c, i) => {
+        const el = document.createElement('div');
+        el.className = 'cite';
+        const n = data.citations[i].n || (i + 1);
+        el.innerHTML = `<b>[${n}]</b> ${c.heading || '（无标题）'} <span class="src">· ${c.source}</span><br>${c.snippet}…`;
+        cs.appendChild(el);
+      });
+      div.appendChild(cs);
+    }
+    if (data.timings_ms) {
+      const t = document.createElement('div');
+      t.className = 'timings';
+      t.textContent = '⏱ 检索 ' + (data.timings_ms.retrieve_ms || 0) + 'ms · 重排 ' +
+        (data.timings_ms.rerank_ms || 0) + 'ms · 生成 ' + (data.timings_ms.generate_ms || 0) + 'ms';
+      div.appendChild(t);
+    }
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  } catch (e) {
+    typing.textContent = '请求失败：' + e.message;
+    typing.className = 'msg bot refused';
+  }
+  send.disabled = false;
+  q.focus();
+}
+
+send.onclick = doAsk;
+q.addEventListener('keydown', e => { if (e.key === 'Enter') doAsk(); });
+</script>
+</body>
+</html>
